@@ -1,0 +1,25 @@
+# Build artifacts
+obj/
+*.o
+*.out
+*.exe
+*.a
+*.so
+*.dylib
+
+# Executables
+blur
+
+# OS files
+.DS_Store
+
+# PNG/JPG output
+copy.png
+*.png
+*.jpg
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
