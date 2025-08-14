@@ -22,22 +22,30 @@ struct image_data* init_image_data(int width, int height, int bit_type, int colo
 }
 
 void free_image_data(struct image_data* image_data) {
-    if (!image_data)
+    if (!image_data) {
         return;
-    if (image_data->data)
+    }
+
+    if (image_data->data) {
         free(image_data->data);
+    }
+
     free(image_data);
 }
 
 void concat_idat_chunks(struct image_data* image_data, struct chunk** idat_chunks, int idat_chunks_length) {
     int length = 0;
+
     for (int i = 0; i < idat_chunks_length; i++) {
         length += idat_chunks[i]->length;
     }
 
     uint8_t* data = malloc(length * sizeof(uint8_t));
-    if (!data)
+
+    if (!data) {
         exit_memory_allocation_error();
+    }
+
     int current_length = 0;
 
     for (int i = 0; i < idat_chunks_length; i++) {
@@ -53,8 +61,10 @@ int split_data_in_idat_chunks(struct image_data* image_data, struct chunk*** ida
     int idat_chunks_length = (int)ceil((double)image_data->length / CHUNK_IDAT_MAX_LENGTH);
 
     *idat_chunks = malloc(sizeof(struct chunk*) * idat_chunks_length);
-    if (*idat_chunks == NULL)
+
+    if (*idat_chunks == NULL) {
         exit_memory_allocation_error();
+    }
 
     for (int i = 0; i < (idat_chunks_length); i++) {
         int remaining = image_data->length - i * CHUNK_IDAT_MAX_LENGTH;
@@ -64,8 +74,11 @@ int split_data_in_idat_chunks(struct image_data* image_data, struct chunk*** ida
         }
 
         uint8_t* buff = malloc(remaining);
-        if (buff == NULL)
+
+        if (buff == NULL) {
             exit_memory_allocation_error();
+        }
+
         memcpy(buff, image_data->data + i * CHUNK_IDAT_MAX_LENGTH, remaining);
 
         struct chunk* test = init_idat_chunk(buff, remaining);
@@ -107,5 +120,6 @@ int get_image_raw_size(struct image_data* image_data) {
     int width = image_data->width;
     int byte_number = image_data->bit_type / 8;
     int color_type_byte = get_color_type_byte(image_data->color_type);
+
     return heigth * (width * byte_number * color_type_byte + 1);
 }

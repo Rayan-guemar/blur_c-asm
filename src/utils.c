@@ -49,8 +49,10 @@ int compress_data(const uint8_t* data_in, int data_in_length, uint8_t** data_out
     if (deflateInit(&stream, Z_BEST_COMPRESSION) != Z_OK) {
         exit_error_while_reading_file();
     }
+
     uLong bound = compressBound(data_in_length);
     *data_out = (Bytef*)malloc(bound);
+
     if (*data_out == NULL) {
         deflateEnd(&stream);
         exit_memory_allocation_error();
