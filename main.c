@@ -7,6 +7,7 @@
 
 #include "include/chunk.h"
 #include "include/error.h"
+#include "include/filter.h"
 #include "include/image_data.h"
 #include "include/utils.h"
 
@@ -126,7 +127,7 @@ void free_chunks(struct chunk* ihdr_chunk, struct chunk** idat_chunks, int idat_
 }
 
 int main() {
-    char* filename = "test_img/image.png";
+    char* filename = "image.png";
     int fd = open(filename, O_RDONLY);
 
     if (fd == -1) {
@@ -160,25 +161,55 @@ int main() {
     }
     int buffer_length = decompress_data(image_data->data, image_data->length, decompressed_data_buffer, image_raw_size);
 
+    printf("Decompressed data length: %d\n", buffer_length);
+    if (buffer_length < 0) {
+        free(decompressed_data_buffer);
+        exit_memory_allocation_error();
+    }
+    image_data->length = buffer_length;
+    image_data->data = decompressed_data_buffer;
+
+    defilter_data(image_data);
+
+    uint8_t* refiltered_data_buffer = malloc(image_data->length * sizeof(uint8_t));
+    refilter_data(image_data, refiltered_data_buffer);
+
+    image_data->data = refiltered_data_buffer;
+
     uint8_t* compressed_data_buffer;
-    buffer_length = compress_data(decompressed_data_buffer, buffer_length, &compressed_data_buffer);
+    buffer_length = compress_data(image_data->data, image_data->length, &compressed_data_buffer);
+
+    printf("Compressed data length: %d\n", buffer_length);
+    if (buffer_length < 0) {
+        free(decompressed_data_buffer);
+        exit_memory_allocation_error();
+    }
+
+    image_data->length = buffer_length;
 
     free(decompressed_data_buffer);
 
     struct chunk** new_idat_chunks;
+
+    image_data->data = compressed_data_buffer;
     int new_idat_chunks_length = split_data_in_idat_chunks(image_data, &new_idat_chunks);
 
-    write_png_file("test_img/copy.png", ihdr_chunk, optionnal_chunks, optionnal_chunks_length, new_idat_chunks, new_idat_chunks_length, iend_chunk);
+    write_png_file("copy.png", ihdr_chunk, optionnal_chunks, optionnal_chunks_length, new_idat_chunks, new_idat_chunks_length, iend_chunk);
 
     if (new_idat_chunks) {
+        printf("freeing new IDAT chunks\n");
         for (int i = 0; i < new_idat_chunks_length; i++) {
+            printf("freeing chunk %d\n", i);
             if (new_idat_chunks[i])
                 free_chunk(new_idat_chunks[i]);
         }
+        printf("freeing new IDAT chunks array\n");
         free(new_idat_chunks);
     }
 
-    free_image_data(image_data);
+    printf("freeing image data\n");
+    free(image_data);
+    free(compressed_data_buffer);
     close(fd);
 
     return 0;

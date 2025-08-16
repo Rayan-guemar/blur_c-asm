@@ -21,18 +21,6 @@ struct image_data* init_image_data(int width, int height, int bit_type, int colo
     return img;
 }
 
-void free_image_data(struct image_data* image_data) {
-    if (!image_data) {
-        return;
-    }
-
-    if (image_data->data) {
-        free(image_data->data);
-    }
-
-    free(image_data);
-}
-
 void concat_idat_chunks(struct image_data* image_data, struct chunk** idat_chunks, int idat_chunks_length) {
     int length = 0;
 

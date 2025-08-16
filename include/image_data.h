@@ -15,18 +15,9 @@ struct image_data {
     uint8_t bit_type;
 };
 
-
 struct image_data* init_image_data(int width, int height, int bit_type, int color_type);
-void free_image_data(struct image_data* image_data);
 void concat_idat_chunks(struct image_data* image_data, struct chunk** idat_chunks, int idat_chunks_length);
 int split_data_in_idat_chunks(struct image_data* image_data, struct chunk*** idat_chunks);
 int get_image_raw_size(struct image_data* image_data);
 
-
-
-
-
-
-
-
-#endif // IMAGE_DATA_H
+#endif  // IMAGE_DATA_H
