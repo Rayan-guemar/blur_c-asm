@@ -128,16 +128,17 @@ void free_chunks(struct chunk* ihdr_chunk, struct chunk** idat_chunks, int idat_
 }
 
 int main(int argc, char* argv[]) {
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s <image.png>\n", argv[0]);
+    if (argc < 3) {
+        fprintf(stderr, "Usage: %s <image.png> <output.png>\n", argv[0]);
         return 1;
     }
 
-    char* filename = argv[1];
-    int fd = open(filename, O_RDONLY);
+    char* sourceFileName = argv[1];
+    char* destFileName = argv[2];
+    int fd = open(sourceFileName, O_RDONLY);
 
     if (fd == -1) {
-        exit_file_open_error(filename);
+        exit_file_open_error(sourceFileName);
     }
 
     read_png_header(fd);
@@ -209,7 +210,7 @@ int main(int argc, char* argv[]) {
     image_data->data = compressed_data_buffer;
     int new_idat_chunks_length = split_data_in_idat_chunks(image_data, &new_idat_chunks);
 
-    write_png_file("copy.png", ihdr_chunk, optionnal_chunks, optionnal_chunks_length, new_idat_chunks, new_idat_chunks_length, iend_chunk);
+    write_png_file(destFileName, ihdr_chunk, optionnal_chunks, optionnal_chunks_length, new_idat_chunks, new_idat_chunks_length, iend_chunk);
 
     if (new_idat_chunks) {
         printf("freeing new IDAT chunks\n");

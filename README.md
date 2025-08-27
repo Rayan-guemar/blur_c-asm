@@ -13,7 +13,6 @@ This project is a learning exercise that demonstrates how to blur images by comb
 - `src/` — Source files for C and ASM code.
 - `include/` — Header files for C code.
 - `obj/` — Compiled object files.
-- `test_img/` — Sample images for testing.
 - `Makefile` — Build instructions.
 
 ## How It Works
