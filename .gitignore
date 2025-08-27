@@ -6,6 +6,7 @@ obj/
 *.a
 *.so
 *.dylib
+test.dSYM
 
 # Executables
 blur

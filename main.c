@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "include/blur.h"
 #include "include/chunk.h"
 #include "include/error.h"
 #include "include/filter.h"
@@ -126,8 +127,13 @@ void free_chunks(struct chunk* ihdr_chunk, struct chunk** idat_chunks, int idat_
     }
 }
 
-int main() {
-    char* filename = "image.png";
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <image.png>\n", argv[0]);
+        return 1;
+    }
+
+    char* filename = argv[1];
     int fd = open(filename, O_RDONLY);
 
     if (fd == -1) {
@@ -170,6 +176,15 @@ int main() {
     image_data->data = decompressed_data_buffer;
 
     defilter_data(image_data);
+
+    uint8_t* blurred_data_buffer = malloc(image_data->length * sizeof(uint8_t));
+    if (!blurred_data_buffer) {
+        exit_memory_allocation_error();
+    }
+
+    blur_data(image_data->data, blurred_data_buffer, image_data->width, image_data->height);
+
+    image_data->data = blurred_data_buffer;
 
     uint8_t* refiltered_data_buffer = malloc(image_data->length * sizeof(uint8_t));
     refilter_data(image_data, refiltered_data_buffer);
